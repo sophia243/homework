@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap" rel="stylesheet">
+    <!-- Required meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+
+    <title>주문페이지(유문영)</title>
+    <style>
+        * {
+            font-family: 'Single Day', cursive;
+        }
+
+        .wrap {
+            width: 500px;
+            margin: auto;
+        }
+
+        .picture {
+            background-image: url("https://image.auction.co.kr/itemimage/10/c6/f5/10c6f53806.jpg");
+            background-size: cover;
+            background-position: center;
+            width: 500px;
+            height: 500px;
+            margin: 50px auto;
+        }
+
+        .pirce {
+            font-size: medium;
+        }
+
+        .order {
+            width: 500px;
+        }
+
+        .order_button {
+            text-align: center;
+        }
+
+        .rate {
+            color: blue;
+        }
+
+    </style>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: "https://api.manana.kr/exchange/rate.json",
+                data: {},
+                success: function (exchange) {
+                    let nowrate = exchange[1]['rate'];
+                    $('#rate-box').text(nowrate);
+
+                }
+            })
+            $.ajax({
+                type: "GET",
+                url: "/order",
+                data: {},
+                success: function (response) {
+                    let orders = response['orders'];
+                    for (let i = 0; i < orders.length; i++) {
+                        let name = orders[i]['name'];
+                        let color = orders[i]['color'];
+                        let count = orders[i]['count'];
+                        let add = orders[i]['add'];
+                        let phone = orders[i]['phone'];
+
+                        let temp = ` <tr>
+                            <td>${name}</td>
+                            <td>${color}</td>
+                            <td>${count}</td>
+                            <td>${add}</td>
+                            <td>${phone}</td>
+                        </tr>`
+                        $('#order_listbox').append(temp)
+                    }
+                }
+            })
+        });
+
+
+        function order() {
+
+            let name = $('#order_name').val()
+            let color = $('#order_color').val()
+            let count = $('#order_count').val()
+            let add = $('#order_add').val()
+            let phone = $('#order_phone').val()
+
+            if (name === '') {
+                alert('이름을 입력해 주세요')
+            } else if (color === '색상선택...') {
+                alert('색상을 선택해 주세요')
+            } else if (count === '수량선택...') {
+                alert('수량을 선택해 주세요')
+            } else if (add === '') {
+                alert('주소를 입력해 주세요')
+            } else if (phone === '') {
+                alert('전화번호를 입력해 주세요')
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/order",
+                    data: {
+                        'name_give': name,
+                        'color_give': color,
+                        'count_give': count,
+                        'add_give': add,
+                        'phone_give': phone
+                    },
+                    success: function (response) {
+                        if (response["result"] == "success") {
+                            alert(response["msg"]);
+                            window.location.reload();
+                        }
+                    }
+                })
+
+            }
+        }
+
+    </script>
+
+</head>
+
+<body>
+
+<div class="wrap">
+
+    <div class="picture"></div>
+
+    <div class="info">
+
+        <h1>♡스톱워치 팝니다♡<span class="pirce">  가격: 4000원/개당</span></h1>
+
+        <p>아무도 살수 없었던 시간을 팝니다. 스톱워치로 시간을 벌어가세요.</p>
+
+        <P class="rate"> 달러-원 환율 : <span id='rate-box'>1000</span></P>
+    </div>
+
+    <div class="order">
+
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">주문자 이름</span>
+            </div>
+            <input id="order_name" type="text" class="form-control" placeholder="" aria-label="Username"
+                   aria-describedby="basic-addon1">
+        </div>
+
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="order_color">색상</label>
+            </div>
+            <select class="custom-select" id="order_color">
+                <option selected>색상선택...</option>
+                <option value="1">검은색</option>
+                <option value="2">흰색</option>
+                <option value="3">분홍색</option>
+            </select>
+        </div>
+
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="order_count">수량</label>
+            </div>
+            <select class="custom-select" id="order_count">
+                <option selected>수량선택...</option>
+                <option value="1">1개</option>
+                <option value="2">2개</option>
+                <option value="3">3개(최대)</option>
+            </select>
+        </div>
+
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">주소</span>
+            </div>
+            <input id="order_add" type="text" class="form-control" placeholder="" aria-label="Username"
+                   aria-describedby="basic-addon1">
+        </div>
+
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">전화번호</span>
+            </div>
+            <input id="order_phone" type="tel" class="form-control" placeholder="" aria-label="Username"
+                   aria-describedby="basic-addon1">
+        </div>
+
+        <div class="order_button">
+            <button onclick="order()" type="button" class="btn btn-primary">주문하기</button>
+        </div>
+
+    </div>
+    <h1></h1>
+    <div>
+        <table class="table">
+            <thead class="thead-light">
+            <tr>
+                <th scope="col">주문자 이름</th>
+                <th scope="col">색상</th>
+                <th scope="col">수량</th>
+                <th scope="col">주소</th>
+                <th scope="col">전화번호</th>
+            </tr>
+            </thead>
+            <tbody id="order_listbox">
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
+</body>
+
+</html>
